@@ -30,16 +30,25 @@ for i in range(len(directs[0])):
       #create csv for folder
     for file in onlyfiles:  # loop through current files
             #print(workpath + '/' + file)
+
         try:
-            with open(csv_path+ directs[0][i] +'/'+ file + '.csv', 'a', newline='') as csvfile:
+
+            with open(csv_path + directs[0][i] + '/' + file + '.csv', 'r', newline='') as csvfile:
+                print(csv_path + directs[0][i] + '/' + file)
                 fs, data = wavfile.read(workpath + '/' + file)
-                fftout = abs(np.fft.fft(data))
-                freqs = abs(np.fft.fftfreq(fftout.size))/len(fftout)
+                w = np.fft.fft(data)
+                #freqs = abs(np.fft.fftfreq(fftout.size))/len(fftout)
+                freqs = np.fft.fftfreq(len(w))
+                print(freqs.min(), freqs.max())
+                idx = np.argmax(np.abs(w))
+                freq = freqs[idx]
+                freq_in_hertz = abs(freq * fs)
+                print(freq_in_hertz)
                 df = pd.DataFrame(
-                      columns=['Raw FFT', 'Frequency in Hertz'])  # create DataFrame for file
-                row = pd.Series([np.mean(fftout), np.mean(freqs)])
-         #   dff = pd.concat([row, df], ingore_index=True)
-                #with open(csv_path + directs[0][i] + filecount+'.csv', 'a', newline='') as csvfile:
+                      columns=['Frequency in Hertz'])  # create DataFrame for file
+                row = pd.Series([freq_in_hertz])
+                #dff = pd.concat([row, df], ingore_index=True)
+                #with open(csv_path + directs[0][i] + file+'.csv', 'a', newline='') as csvfile:
                 writing = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 #                if filecount < 1:
                 writing.writerow(row)
